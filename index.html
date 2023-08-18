@@ -1,0 +1,426 @@
+<!--<a href="https://www.mozilla.org/zh-CN/about/manifesto/">-->
+<!DOCTYPE html >
+<html>
+<head>
+<meta charset="utf-8" name="save" content="history">
+<title>生产日历</title>
+<style>
+
+table.wTable {
+    display: block;
+    border: 0;
+    border-spacing: 0;
+    border-collapse: collapse;
+    cursor: default;
+	margin-top:15px;
+	border:1px solid #aaa;
+}
+
+table.wTable th {
+    white-space:nowrap;
+	vertical-align:baseline;
+	padding:5px 15px 5px 6px;
+	background-color:#3F3F3F;
+	border:1px solid #3F3F3F;
+	text-align:left;
+	color:#fff;
+}
+table.wTable td {
+	vertical-align:text-top;
+	padding:6px 15px 6px 6px;
+	border:1px solid #aaa;
+}
+table.wTable tr:nth-child(odd) {
+	background-color:#F5F5F5;
+}
+table.wTable tr:nth-child(even) {
+	background-color:#fff;
+}
+</style>
+
+<div id="datetime">
+    <script>
+        setInterval("document.getElementById('datetime').innerHTML=new Date().toLocaleString();", 1000);
+    </script>
+</div>
+
+<script>
+function addWeek(){
+    var wTable = document.getElementById("wTable");
+    var tBodies = wTable.tBodies;
+    var tbody = tBodies[0];
+    var current_len = tbody.rows.length;
+    //alert(current_len);
+    //document.write(tbody.rows[0].cells[0].innerHTML);
+    var day = ["周一","周二","周三","周四","周五","周六","周日"]
+    for(var i=0;i<5;i++){
+        var tr = tbody.insertRow();
+        for(var j=0;j<52;j++){
+            var td_1 = tr.insertCell(-1);
+            if (j==1){
+                td_1.innerHTML = day[i];
+                continue;
+            }
+            if (j == 0){
+                    td_1.innerHTML = get_date(i+current_len);
+                    continue;
+            }
+            td_1.innerHTML = tbody.rows[0].cells[j].innerHTML;
+        }
+    }
+    for(var i=5;i<7;i++){
+        var tr = tbody.insertRow();
+        for(var j=0;j<52;j++){
+            var td_1 = tr.insertCell(-1);
+            if (j==1){
+                td_1.innerHTML = day[i];
+                continue;
+            }
+            if (j == 0){
+                td_1.innerHTML = get_date(i+current_len);
+                continue;
+            }
+            td_1.innerHTML = 0;
+        }
+    }
+    //alert(tbody.rows.length)
+    }
+</script>
+
+<script>
+    function addRow(d){
+        var day = ["周一","周二","周三","周四","周五","周六","周日"]
+        var wTable = document.getElementById("wTable");
+        var tBodies = wTable.tBodies;
+        //var working_time = wTable.getElementById("timelist");
+        var working_time = wTable.tHead.rows[1];
+        //alert(wTable.tHead.rows[1].cells[5].innerHTML)
+        var tbody = tBodies[0];
+        //alert(d);
+        var device_num = wTable.rows[0].cells.length;
+        //alert(device_num)
+        var table = document.getElementById("calender");
+        var line_today = tbody.rows[0];
+        //finish the first row
+        for(var i=0;i<device_num-2;i++){
+            var content = line_today.insertCell(-1);
+            if (d<=5)
+                content.innerHTML = working_time.cells[i+1].innerHTML;
+            else
+                content.innerHTML = "<td><div contenteditable='true'>0</div></td>";
+        }
+        if (d>=5){
+            for(var i=d;i<7;i++){
+                var tr = tbody.insertRow();
+                for(var j=0;j<device_num;j++){
+                    var td_1 = tr.insertCell(-1);
+                    if (j==1){
+                        td_1.innerHTML = day[i];
+                        continue;
+                    }
+                    if (j == 0){
+                        td_1.innerHTML = "<td><div class='work'>"+get_date(i-d+1)+"</div></td>";
+                        continue;
+                }
+                td_1.innerHTML = "<td><div contenteditable='true'>0</div></td>";
+            }
+        }
+        return;
+        }
+        var workday_left = 5-d;
+        for(var i=0;i<workday_left;i++){
+            var tr = tbody.insertRow();
+            for(var j=0;j<device_num;j++){
+                var td_1 = tr.insertCell(-1);
+                if (j==1){
+                    td_1.innerHTML = day[i+d];
+                    continue;
+                }
+                if (j==0){
+                    td_1.innerHTML = "<td><div class='work'>"+get_date(i+1)+"</div></td>";
+                    //td_1.innerHTML = get_date(i+1);
+                    continue;
+                }
+                td_1.innerHTML = working_time.cells[j-1].innerHTML;
+            }
+        }
+        for(var i=5;i<7;i++){
+            var tr = tbody.insertRow();
+            for(var j=0;j<device_num;j++){
+                var td_1 = tr.insertCell(-1);
+                if (j==1){
+                    td_1.innerHTML = day[i];
+                    continue;
+                }
+                if (j == 0){
+                    td_1.innerHTML = "<td><div class='work'>"+get_date(i-d+1)+"</div></td>";
+                    //td_1.innerHTML = get_date(i-d+1);
+                    continue;
+                }
+                td_1.innerHTML = "<td><div contenteditable='true'>0</div></td>";
+            }
+        }
+        }
+</script>
+
+
+</head>
+<body>
+<legend>生产日历</legend>
+<!--<div style="width:1500px; height:2000px;overflow:scroll;">-->
+<table class="wTable" id="wTable" style="background-color:#eeeeee;" bordercolor="#aaaaaa" border="1" width="100%" height="100%" onclick="TabClick();">
+<thead>
+<!--initializing device name-->
+<tr>
+<th>日期</th>
+<th>星期</th>
+<th>枪钻-01</th>
+<th>枪钻-02</th>
+<th>枪钻-03</th>
+<th>枪钻-04</th>
+<th>枪钻-05</th>
+<th>枪钻-06</th>
+<th>枪钻-07</th>
+<th>枪钻-08</th>
+<th>枪钻-09</th>
+<th>枪钻-10</th>
+<th>枪钻-11</th>
+<th>枪钻-12</th>
+<th>枪钻-13</th>
+<th>枪钻-14</th>
+<th>枪钻-15</th>
+<th>枪钻-16</th>
+<th>枪钻-17</th>
+<th>枪钻-18</th>
+<th>枪钻-19</th>
+<th>枪钻-20</th>
+<th>卧车-01</th>
+<th>卧车-02</th>
+<th>普车-01</th>
+<th>普车-02</th>
+<th>普车-03</th>
+<th>立车-01</th>
+<th>立车-02</th>
+<th>扩孔-01</th>
+<th>扩孔-02</th>
+<th>扩孔-03</th>
+<th>扩孔-04</th>
+<th>扩孔-05</th>
+<th>扩孔-06</th>
+<th>扩孔-07</th>
+<th>扩孔-08</th>
+<th>扩孔-09</th>
+<th>扩孔-10</th>
+<th>锪孔-01</th>
+<th>锪孔-02</th>
+<th>倒角-01</th>
+<th>倒角-02</th>
+<th>真空-01</th>
+<th>真空-02</th>
+<th>真空-03</th>
+<th>钻铣-01</th>
+<th>回火-01</th>
+<th>清洗-01</th>
+<th>包装-01</th>
+<th>抽检-01</th>
+<th>定检-01</th>
+</tr>
+<tr><!--initializing working time-->
+<th colspan="2">工作时长</th>
+<!--<th><input type="time" id=device_01 value="08:00"/>-<input type="time" id=device_01 value="15:00"/></th>-->
+<th><div contenteditable="true" class='duration'>8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+</tr>
+
+</thead>
+<tbody id="calender">
+<tr>
+<td><div class='work'><p id="today"></p></div></td>
+<pre id="changework"></pre>
+<td><p id="day_today"></p></td>
+</tr>
+</tbody>
+</table>
+
+
+<!--</div>-->
+<input type="button" onClick="addWeek();" style="font-size:16px;" value="加一周"/>
+<button id="btn" onclick="btn_export()"style="font-size:16px;">导出</button>
+</body>
+</html>
+
+<script>
+    function btn_export(){
+    var excel="";
+    excel+="<table>";
+    var html=document.getElementById("wTable").innerHTML;
+    excel+=html;
+    excel+="</table>";
+    var excelFile="<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:"+excel+"' xmlns='http://www.w3.org/TR/REC-html40'>";
+    excelFile=excelFile+"<head><style type=\"text/css\">table td {border: 1px solid #000000;width: 200px;height: 30px text-align: center;}</style></head>"+excel+"</body></html>";
+    var base64data="base64,"+window.btoa(unescape(encodeURIComponent(excelFile)));
+    window.open('data:application/vnd.ms-excel;'+ base64data);
+    response.setContentType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    }
+</script>
+
+<script type="text/javascript">
+    var month_olypic = [31,29,31,30,31,30,31,31,30,31,30,31];//正常年份12个月对应的天数
+    var month_normal = [31,28,31,30,31,30,31,31,30,31,30,31];//闰年中12个月对应的天数
+    var day = ["周日","周一","周二","周三","周四","周五","周六"]
+    var month_name =["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];//定义要显示的月份数组
+
+    //获取当天的年月日
+    var my_date = new Date();
+    var my_year = my_date.getFullYear();//获取年份
+    var my_month = my_date.getMonth(); //获取月份，下标从0开始
+    var my_day = my_date.getDate();//获取当前日期
+    function get_date(x){
+        var month_count = daysMonth(my_month,my_year);
+        if ((my_day+x)<=month_count)
+            return my_year+'-'+(my_month+1)+'-'+(my_day+x);
+        else{
+            var year = my_year;
+            var day = my_day + x - month_count;
+            var month = my_month + 1;
+            if (month==12){
+                month = 0;
+                year = year + 1;
+            }
+            while ((day>daysMonth(month,year))){
+                day = day - daysMonth(month,year);
+                month = month + 1;
+                if (month==12){
+                month = 0;
+                year = year + 1;
+            }
+            }
+            return (year+'-'+(month+1)+'-'+(day));
+        }
+        alert("Error!");
+        return '0000-00-00';
+    }
+    document.getElementById("today").innerHTML = get_date(0);//将今天日期填写进表格
+    //根据年月获取当月第一天是周几
+    function dayStart(month,year){
+        var tmpDate = new Date(year, month, 1);
+        return (tmpDate.getDay());
+    }
+    
+    function get_day_today(){
+        var delta = my_day-1+dayStart((my_month),my_year);
+        return delta%7;
+    }
+    document.getElementById("day_today").innerHTML = day[get_day_today()];
+    addRow(get_day_today());
+
+    //根据年份判断某月有多少天，主要是区分闰年
+    function daysMonth(month, year){
+        var tmp1 = year % 4;
+        var tmp2 = year % 100;
+        var tmp3 = year % 400;
+
+        if((tmp1 == 0 && tmp2 != 0) || (tmp3 == 0)){
+            return (month_olypic[month]);//闰年
+        }else{
+            return (month_normal[month]);//非闰年
+        }
+    }
+</script>
+
+<script>
+    function TabClick()
+    {
+　　　　var td = event.srcElement; // 通过event.srcElement 获取激活事件的对象 td
+        console.log("行号：" + (td.parentElement.rowIndex) + "，列号：" + td.cellIndex);
+        //console.log(td.parentElement.rowIndex);
+        //alert("更改"+td.innerHTML+"的工作状态");
+        if (td.parentElement.rowIndex*td.cellIndex!=0)
+        return;
+        if (td.parentElement.rowIndex+td.cellIndex==1)
+        return;
+        edit = confirm("更改"+td.innerHTML+"的工作状态");
+        if (edit){
+            var col = td.cellIndex;
+            var row = td.parentElement.rowIndex;
+            var wholeTable = document.getElementById('wTable');
+            var standard_zero = '<td><div contenteditable="true">0</div></td>';
+            //console.log("行号：" + (td.parentElement.rowIndex) + "，列号：" + td.cellIndex);
+            if (td.parentElement.rowIndex==0){
+                console.log(wholeTable.rows[1].cells[col-1].innerHTML);
+                if (wholeTable.rows[1].cells[col-1].innerHTML.includes('-')){
+                    console.log("work")
+                    var tBodies = wTable.tBodies;
+                    var tbody = tBodies[0];
+                    var current_len = tbody.rows.length;
+                    for (let i=2;i<current_len;i++){
+                        wholeTable.rows[i].cells[col].innerHTML = '<td><div contenteditable="true">0</div></td>';
+                    }
+                }
+                else{
+                    console.log("stop working")
+                    var tBodies = wTable.tBodies;
+                    var tbody = tBodies[0];
+                    var current_len = tbody.rows.length;
+                    for (let i=2;i<current_len;i++){
+                        wholeTable.rows[i].cells[col].innerHTML = '<td><div contenteditable="true">0</div></td>';
+                    }
+                }
+                //console.log(wholeTable.rows[1].cells[0]);
+                //console.log(wholeTable.rows[1].cells[col-1].innerHTML);
+                //console.log(typeof wholeTable.rows[1].cells[col-1].innerHTML);
+            }
+        }
+        else
+            return;
+    }
+</script>
+<!--</a>-->
