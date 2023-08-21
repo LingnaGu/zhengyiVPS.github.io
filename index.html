@@ -5,37 +5,7 @@
 <meta charset="utf-8" name="save" content="history">
 <title>生产日历</title>
 <style>
-
-table.wTable {
-    display: block;
-    border: 0;
-    border-spacing: 0;
-    border-collapse: collapse;
-    cursor: default;
-	margin-top:15px;
-	border:1px solid #aaa;
-}
-
-table.wTable th {
-    white-space:nowrap;
-	vertical-align:baseline;
-	padding:5px 15px 5px 6px;
-	background-color:#3F3F3F;
-	border:1px solid #3F3F3F;
-	text-align:left;
-	color:#fff;
-}
-table.wTable td {
-	vertical-align:text-top;
-	padding:6px 15px 6px 6px;
-	border:1px solid #aaa;
-}
-table.wTable tr:nth-child(odd) {
-	background-color:#F5F5F5;
-}
-table.wTable tr:nth-child(even) {
-	background-color:#fff;
-}
+    @import url("./style/table_style.css");
 </style>
 
 <div id="datetime">
@@ -50,7 +20,6 @@ function addWeek(){
     var tBodies = wTable.tBodies;
     var tbody = tBodies[0];
     var current_len = tbody.rows.length;
-    //alert(current_len);
     //document.write(tbody.rows[0].cells[0].innerHTML);
     var day = ["周一","周二","周三","周四","周五","周六","周日"]
     for(var i=0;i<5;i++){
@@ -83,7 +52,6 @@ function addWeek(){
             td_1.innerHTML = 0;
         }
     }
-    //alert(tbody.rows.length)
     }
 </script>
 
@@ -92,13 +60,9 @@ function addWeek(){
         var day = ["周一","周二","周三","周四","周五","周六","周日"]
         var wTable = document.getElementById("wTable");
         var tBodies = wTable.tBodies;
-        //var working_time = wTable.getElementById("timelist");
         var working_time = wTable.tHead.rows[1];
-        //alert(wTable.tHead.rows[1].cells[5].innerHTML)
         var tbody = tBodies[0];
-        //alert(d);
         var device_num = wTable.rows[0].cells.length;
-        //alert(device_num)
         var table = document.getElementById("calender");
         var line_today = tbody.rows[0];
         //finish the first row
@@ -228,7 +192,7 @@ function addWeek(){
 <tr><!--initializing working time-->
 <th colspan="2">工作时长</th>
 <!--<th><input type="time" id=device_01 value="08:00"/>-<input type="time" id=device_01 value="15:00"/></th>-->
-<th><div contenteditable="true" class='duration'>8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
 <th><div contenteditable="true">8:00-17:00</div></th>
 <th><div contenteditable="true">8:00-17:00</div></th>
 <th><div contenteditable="true">8:00-17:00</div></th>
@@ -316,7 +280,6 @@ function addWeek(){
     var month_olypic = [31,29,31,30,31,30,31,31,30,31,30,31];//正常年份12个月对应的天数
     var month_normal = [31,28,31,30,31,30,31,31,30,31,30,31];//闰年中12个月对应的天数
     var day = ["周日","周一","周二","周三","周四","周五","周六"]
-    var month_name =["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];//定义要显示的月份数组
 
     //获取当天的年月日
     var my_date = new Date();
@@ -367,7 +330,6 @@ function addWeek(){
         var tmp1 = year % 4;
         var tmp2 = year % 100;
         var tmp3 = year % 400;
-
         if((tmp1 == 0 && tmp2 != 0) || (tmp3 == 0)){
             return (month_olypic[month]);//闰年
         }else{
@@ -380,34 +342,43 @@ function addWeek(){
     function TabClick()
     {
 　　　　var td = event.srcElement; // 通过event.srcElement 获取激活事件的对象 td
-        console.log("行号：" + (td.parentElement.rowIndex) + "，列号：" + td.cellIndex);
-        //console.log(td.parentElement.rowIndex);
-        //alert("更改"+td.innerHTML+"的工作状态");
+        //console.log("行号：" + (td.parentElement.rowIndex) + "，列号：" + td.cellIndex);
         if (td.parentElement.rowIndex*td.cellIndex!=0)
         return;
         if (td.parentElement.rowIndex+td.cellIndex==1)
         return;
-        edit = confirm("更改"+td.innerHTML+"的工作状态");
+        var cell_to_change = td.innerHTML;
+        var start = cell_to_change.indexOf('-');
+        if (start>5){
+            var show = cell_to_change.slice(start-4,start+5);
+            edit = confirm("更改"+show+"的工作状态");
+        }
+        else
+            edit = confirm("更改"+td.innerHTML+"的工作状态");
         if (edit){
             var col = td.cellIndex;
             var row = td.parentElement.rowIndex;
             var wholeTable = document.getElementById('wTable');
             var standard_zero = '<td><div contenteditable="true">0</div></td>';
-            //console.log("行号：" + (td.parentElement.rowIndex) + "，列号：" + td.cellIndex);
             if (td.parentElement.rowIndex==0){
                 console.log(wholeTable.rows[1].cells[col-1].innerHTML);
                 if (wholeTable.rows[1].cells[col-1].innerHTML.includes('-')){
-                    console.log("work")
-                    var tBodies = wTable.tBodies;
+                    var tBodies = wholeTable.tBodies;
                     var tbody = tBodies[0];
                     var current_len = tbody.rows.length;
-                    for (let i=2;i<current_len;i++){
-                        wholeTable.rows[i].cells[col].innerHTML = '<td><div contenteditable="true">0</div></td>';
+                    var device_num = wholeTable.rows[0].cells.length;
+                    let ref = work_count('wTable',current_len,device_num);
+                    for(var i = 0, len = ref.length ; i < len ; i++) {
+                        if (ref[i]){
+                            wholeTable.rows[i+2].cells[col].innerHTML = wholeTable.rows[1].cells[col-1].innerHTML;
+                        }
+                        else{
+                            wholeTable.rows[i+2].cells[col].innerHTML = '<td><div contenteditable="true">0</div></td>';
+                        }
                     }
                 }
                 else{
-                    console.log("stop working")
-                    var tBodies = wTable.tBodies;
+                    var tBodies = wholeTable.tBodies;
                     var tbody = tBodies[0];
                     var current_len = tbody.rows.length;
                     for (let i=2;i<current_len;i++){
@@ -418,9 +389,43 @@ function addWeek(){
                 //console.log(wholeTable.rows[1].cells[col-1].innerHTML);
                 //console.log(typeof wholeTable.rows[1].cells[col-1].innerHTML);
             }
+            if (td.cellIndex==0){
+                var tBodies = wholeTable.tBodies;
+                var tbody = tBodies[0];
+                var current_len = tbody.rows.length;
+                var device_num = wholeTable.rows[0].cells.length;
+                //console.log(device_num);
+                let ref = work_count('wTable',current_len,device_num);
+                if (ref[row-2]){
+                    for (let i=2;i<device_num;i++){
+                        wholeTable.rows[row].cells[i].innerHTML = '<td><div contenteditable="true">0</div></td>';
+                    }
+                }
+                else{
+                    for (let i=2;i<device_num;i++){
+                        wholeTable.rows[row].cells[i].innerHTML = wholeTable.rows[1].cells[i-1].innerHTML;
+                    }
+                }
+                //console.log(ref[row-2]);
+            }
         }
         else
             return;
+    }
+
+    function work_count(t,row,col){
+        var tab = document.getElementById(t);
+        var is_workday = new Array();
+        for (let i = 2; i<row+2; i++){
+            for (let j = 2; j<col; j++){
+                is_workday[i-2]=false;
+                if (tab.rows[i].cells[j].innerHTML.includes('-')){
+                    is_workday[i-2]=true;
+                    break;
+                }
+            }
+        }
+        return is_workday;
     }
 </script>
 <!--</a>-->
