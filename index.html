@@ -3,11 +3,17 @@
 <html>
 <head>
 <meta charset="utf-8" name="save" content="history">
+<script src="./scripts/xlsx.full.min.js"></script>
+<script src="./scripts/dayjs.min.js"></script>
+<script src="./scripts/dayFunction.js"></script>
+<script src="./scripts/table_from_list.js"></script>
+
+
 <title>生产日历</title>
 <style>
     @import url("./style/table_style.css");
 </style>
-
+<input type="file" onchange="readExcel(this)" style="font-size:16px;" />
 <div id="datetime">
     <script>
         setInterval("document.getElementById('datetime').innerHTML=new Date().toLocaleString();", 1000);
@@ -20,11 +26,11 @@ function addWeek(){
     var tBodies = wTable.tBodies;
     var tbody = tBodies[0];
     var current_len = tbody.rows.length;
-    //document.write(tbody.rows[0].cells[0].innerHTML);
     var day = ["周一","周二","周三","周四","周五","周六","周日"]
+    var device_num = wTable.rows[0].cells.length;
     for(var i=0;i<5;i++){
         var tr = tbody.insertRow();
-        for(var j=0;j<52;j++){
+        for(var j=0;j<device_num;j++){
             var td_1 = tr.insertCell(-1);
             if (j==1){
                 td_1.innerHTML = day[i];
@@ -39,7 +45,7 @@ function addWeek(){
     }
     for(var i=5;i<7;i++){
         var tr = tbody.insertRow();
-        for(var j=0;j<52;j++){
+        for(var j=0;j<device_num;j++){
             var td_1 = tr.insertCell(-1);
             if (j==1){
                 td_1.innerHTML = day[i];
@@ -49,7 +55,7 @@ function addWeek(){
                 td_1.innerHTML = get_date(i+current_len);
                 continue;
             }
-            td_1.innerHTML = 0;
+            td_1.innerHTML = "<td><div contenteditable='true'>0</div></td>";
         }
     }
     }
@@ -83,7 +89,7 @@ function addWeek(){
                         continue;
                     }
                     if (j == 0){
-                        td_1.innerHTML = "<td><div class='work'>"+get_date(i-d+1)+"</div></td>";
+                        td_1.innerHTML = "<td>"+get_date(i-d+1)+"</td>";
                         continue;
                 }
                 td_1.innerHTML = "<td><div contenteditable='true'>0</div></td>";
@@ -101,8 +107,7 @@ function addWeek(){
                     continue;
                 }
                 if (j==0){
-                    td_1.innerHTML = "<td><div class='work'>"+get_date(i+1)+"</div></td>";
-                    //td_1.innerHTML = get_date(i+1);
+                    td_1.innerHTML = "<td>"+get_date(i+1)+"</td>";
                     continue;
                 }
                 td_1.innerHTML = working_time.cells[j-1].innerHTML;
@@ -117,8 +122,7 @@ function addWeek(){
                     continue;
                 }
                 if (j == 0){
-                    td_1.innerHTML = "<td><div class='work'>"+get_date(i-d+1)+"</div></td>";
-                    //td_1.innerHTML = get_date(i-d+1);
+                    td_1.innerHTML = "<td>"+get_date(i-d+1)+"</td>";
                     continue;
                 }
                 td_1.innerHTML = "<td><div contenteditable='true'>0</div></td>";
@@ -126,7 +130,6 @@ function addWeek(){
         }
         }
 </script>
-
 
 </head>
 <body>
@@ -182,8 +185,16 @@ function addWeek(){
 <th>真空-01</th>
 <th>真空-02</th>
 <th>真空-03</th>
+<th>真空-04</th>
+<th>真空-05</th>
+<th>真空-06</th>
+<th>真空-07</th>
+<th>真空-08</th>
+<th>真空-09</th>
+<th>真空-10</th>
 <th>钻铣-01</th>
 <th>回火-01</th>
+<th>回火-02</th>
 <th>清洗-01</th>
 <th>包装-01</th>
 <th>抽检-01</th>
@@ -242,12 +253,20 @@ function addWeek(){
 <th><div contenteditable="true">8:00-17:00</div></th>
 <th><div contenteditable="true">8:00-17:00</div></th>
 <th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
+<th><div contenteditable="true">8:00-17:00</div></th>
 </tr>
 
 </thead>
 <tbody id="calender">
 <tr>
-<td><div class='work'><p id="today"></p></div></td>
+<td><p id="today"></p></td>
 <pre id="changework"></pre>
 <td><p id="day_today"></p></td>
 </tr>
@@ -257,22 +276,18 @@ function addWeek(){
 
 <!--</div>-->
 <input type="button" onClick="addWeek();" style="font-size:16px;" value="加一周"/>
-<button id="btn" onclick="btn_export()"style="font-size:16px;">导出</button>
+<input type="button" onClick="btn_export();" style="font-size:16px;" value="导出"/>
+
 </body>
 </html>
 
 <script>
     function btn_export(){
-    var excel="";
-    excel+="<table>";
-    var html=document.getElementById("wTable").innerHTML;
-    excel+=html;
-    excel+="</table>";
-    var excelFile="<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:"+excel+"' xmlns='http://www.w3.org/TR/REC-html40'>";
-    excelFile=excelFile+"<head><style type=\"text/css\">table td {border: 1px solid #000000;width: 200px;height: 30px text-align: center;}</style></head>"+excel+"</body></html>";
-    var base64data="base64,"+window.btoa(unescape(encodeURIComponent(excelFile)));
-    window.open('data:application/vnd.ms-excel;'+ base64data);
-    response.setContentType('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    var rows = document.getElementById('wTable');
+    var worksheet = XLSX.utils.table_to_sheet(rows,{raw:true});
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Calender");
+    XLSX.writeFile(workbook, "calender.xlsx", { raw:true});
     }
 </script>
 
@@ -280,37 +295,12 @@ function addWeek(){
     var month_olypic = [31,29,31,30,31,30,31,31,30,31,30,31];//正常年份12个月对应的天数
     var month_normal = [31,28,31,30,31,30,31,31,30,31,30,31];//闰年中12个月对应的天数
     var day = ["周日","周一","周二","周三","周四","周五","周六"]
-
     //获取当天的年月日
     var my_date = new Date();
     var my_year = my_date.getFullYear();//获取年份
     var my_month = my_date.getMonth(); //获取月份，下标从0开始
     var my_day = my_date.getDate();//获取当前日期
-    function get_date(x){
-        var month_count = daysMonth(my_month,my_year);
-        if ((my_day+x)<=month_count)
-            return my_year+'-'+(my_month+1)+'-'+(my_day+x);
-        else{
-            var year = my_year;
-            var day = my_day + x - month_count;
-            var month = my_month + 1;
-            if (month==12){
-                month = 0;
-                year = year + 1;
-            }
-            while ((day>daysMonth(month,year))){
-                day = day - daysMonth(month,year);
-                month = month + 1;
-                if (month==12){
-                month = 0;
-                year = year + 1;
-            }
-            }
-            return (year+'-'+(month+1)+'-'+(day));
-        }
-        alert("Error!");
-        return '0000-00-00';
-    }
+
     document.getElementById("today").innerHTML = get_date(0);//将今天日期填写进表格
     //根据年月获取当月第一天是周几
     function dayStart(month,year){
@@ -323,19 +313,14 @@ function addWeek(){
         return delta%7;
     }
     document.getElementById("day_today").innerHTML = day[get_day_today()];
-    addRow(get_day_today());
 
-    //根据年份判断某月有多少天，主要是区分闰年
-    function daysMonth(month, year){
-        var tmp1 = year % 4;
-        var tmp2 = year % 100;
-        var tmp3 = year % 400;
-        if((tmp1 == 0 && tmp2 != 0) || (tmp3 == 0)){
-            return (month_olypic[month]);//闰年
-        }else{
-            return (month_normal[month]);//非闰年
-        }
+    window.onload=function(){
+        addRow(get_day_today());
+        for (let i=0;i<51;i++){
+        addWeek();
     }
+}
+
 </script>
 
 <script>
@@ -349,9 +334,14 @@ function addWeek(){
         return;
         var cell_to_change = td.innerHTML;
         var start = cell_to_change.indexOf('-');
-        if (start>5){
+        console.log(cell_to_change);
+        console.log(start);
+        var new_time='';
+        if (start>3){
             var show = cell_to_change.slice(start-4,start+5);
-            edit = confirm("更改"+show+"的工作状态");
+            new_time = window.prompt("更改"+show+"的工作时间", "");
+            console.log(new_time);
+            edit = (new_time != ''&&new_time!=null);
         }
         else
             edit = confirm("更改"+td.innerHTML+"的工作状态");
@@ -361,7 +351,7 @@ function addWeek(){
             var wholeTable = document.getElementById('wTable');
             var standard_zero = '<td><div contenteditable="true">0</div></td>';
             if (td.parentElement.rowIndex==0){
-                console.log(wholeTable.rows[1].cells[col-1].innerHTML);
+                //change device woring time
                 if (wholeTable.rows[1].cells[col-1].innerHTML.includes('-')){
                     var tBodies = wholeTable.tBodies;
                     var tbody = tBodies[0];
@@ -396,16 +386,16 @@ function addWeek(){
                 var device_num = wholeTable.rows[0].cells.length;
                 //console.log(device_num);
                 let ref = work_count('wTable',current_len,device_num);
-                if (ref[row-2]){
+                //if (ref[row-2]){
                     for (let i=2;i<device_num;i++){
-                        wholeTable.rows[row].cells[i].innerHTML = '<td><div contenteditable="true">0</div></td>';
+                        wholeTable.rows[row].cells[i].innerHTML = '<td><div contenteditable="true">'+new_time+'</div></td>';
                     }
-                }
-                else{
-                    for (let i=2;i<device_num;i++){
-                        wholeTable.rows[row].cells[i].innerHTML = wholeTable.rows[1].cells[i-1].innerHTML;
-                    }
-                }
+                //}
+                //else{
+                    //for (let i=2;i<device_num;i++){
+                        //wholeTable.rows[row].cells[i].innerHTML = wholeTable.rows[1].cells[i-1].innerHTML;
+                    //}
+                //}
                 //console.log(ref[row-2]);
             }
         }
@@ -413,19 +403,25 @@ function addWeek(){
             return;
     }
 
-    function work_count(t,row,col){
-        var tab = document.getElementById(t);
-        var is_workday = new Array();
-        for (let i = 2; i<row+2; i++){
-            for (let j = 2; j<col; j++){
-                is_workday[i-2]=false;
-                if (tab.rows[i].cells[j].innerHTML.includes('-')){
-                    is_workday[i-2]=true;
-                    break;
-                }
-            }
-        }
-        return is_workday;
+
+</script>
+
+<script>
+    function readExcel(file_obj){
+        var reader = new FileReader();
+        var file = file_obj.files[0];
+        reader.readAsBinaryString(file);
+        reader.onload = function (e) {
+            var data = e.target.result;
+            var wb = XLSX.read(data, {type: 'binary',cellDates: true,});
+            sheetName = wb.SheetNames[0]   // 获取文档中第一个sheet页签的名字
+            worksheet = wb.Sheets[sheetName]   // 获sheet名页签下的数据
+            var col_index = XLSX.utils.decode_col("D");
+            const raw_data = XLSX.utils.sheet_to_json(worksheet, {header:1});
+            //console.log(worksheet['枪钻-02']);
+            add_from_array('wTable',raw_data);
+            //console.log(raw_data);   // 返回sheet对象到控制台
+        };
     }
 </script>
 <!--</a>-->
