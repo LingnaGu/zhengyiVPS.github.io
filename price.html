@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<h1>上海正宜价格计算</h1>
+<body>
+    <form action="page.html" method="post">
+        <label>参数A：
+          <input type="number" name="value_a" id='value_a' value="0" />
+        </label>
+        <label>参数B：
+            <input type="number" name="value_b" id='value_b' value="0" />
+        </label>
+        <input class='buttons' type="button" onClick="calculate();"  value="计算"/>
+      </form>
+    <!--<embed id="pdfPlayer" src="{% static 'images/factory.pdf'%}" type="application/pdf" width="80%" height="80%" >-->
+
+</body>
+</html>
+<script>
+    function calculate(){
+        var a = document.getElementById("value_a").value;
+        var b = document.getElementById("value_b").value;
+        var sum = a*1+b*1;
+        //console.log(typeof a);
+        alert('运算结果:'+sum);
+    }
+</script>
